@@ -17,6 +17,10 @@ class Engbook:
 
         self.visualize = visualize.View()
 
+    def printDicct(self,dic):
+        for d in dic:
+            print(d)
+
     def gui(self):
         layout = [
             [sg.Button('PENCIL'), sg.Button('MOVE'), sg.Button('punto'), sg.Button('vector'), sg.Button('circulo'),
@@ -41,12 +45,13 @@ class Engbook:
         #self.plane.size = window['-GRAPH-'].get_size()
         #self.sheet.size = window['-GRAPH-'].get_size()
         self.sheet = sheet.Sheet(window['-GRAPH-'].get_size())
-        self.plane = planeXY.Plane((400,300))
+
 
         while True:
             event, value = window.read(timeout=10)
 
             if event == sg.WIN_CLOSED:
+                self.printDicct(self.sheet.plane_register)
                 break
 
             if event in self.buttons_name:
@@ -67,8 +72,8 @@ class Engbook:
                             self.line.start_line()
 
                         elif button_act == 'MOVE':
-                            self.sheet.move_sheet(self.line.lines_register)
-
+                            self.sheet.move_sheet([self.line.lines_register])
+                            #self.sheet.plane_register,
 
                 elif evento.type == MOUSEBUTTONUP:
                     if evento.button == 1:
@@ -82,15 +87,7 @@ class Engbook:
             screen.fill((255, 255, 255))
 
 
-            """self.plane.plane(self.sheet.center,'R1',{'X': {'separation':10},
-                                   'Y': {'separation':10},
-                                   'color': (180, 180, 180)})"""
-
-            self.plane.plane(self.sheet.center,'R2',{'X': {'separation': 50},
-                                   'Y': {'separation': 50},
-                                   'color': (100, 100, 100)})
-
-            self.sheet.show(screen,[self.plane.plane_register,
+            self.sheet.show(screen,[self.sheet.plane_register,
                                     self.line.lines_register])
             #self.plane.data_mouse(screen)
 
@@ -100,7 +97,8 @@ class Engbook:
 
             self.visualize.view(screen,{'pantalla':window['-GRAPH-'].get_size(),
                                         'mouse':pg.mouse.get_pos(),
-                                        'center':self.sheet.center})
+                                        'center':self.sheet.origin})
+
 
             #pg.draw.line(screen, (10,10,10),(10, 10),vxy, 3)
 
@@ -111,8 +109,9 @@ class Engbook:
                 self.line.draw_line(screen)
 
             elif button_act == 'MOVE':
-                self.sheet.update(self.line.lines_register)
+                self.sheet.update([self.line.lines_register])
 
+                #self.sheet.plane_register,
 
             pg.display.update()
 
