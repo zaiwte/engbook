@@ -18,7 +18,8 @@ class Sheet:
 		self.draw:dict = {}
 		self.register_dpm: dict = {}
 		self.plane_register: dict = {}
-		self.plane(self.origin, 'R1', 100)
+		self.zoom = 100
+		self.plane(self.origin, 'R1', self.zoom)
 
 	def plane(self,o,name,S,C=(100,100,100)):
 		""""
@@ -75,8 +76,20 @@ class Sheet:
 				num += 1
 			num = 0
 
-	def ruler(self):
-		pass
+	def zoom_plane(self,z):
+		if self.zoom < 200 and self.zoom > 50:
+			mx, my = pg.mouse.get_pos()
+			domx = -1 * (mx - self.ox)
+			domy = -1 * (my - self.oy)
+			self.zoom += z
+			#self.origin = (self.ox + domx + self.zoom, self.oy + domy + self.zoom,)
+			self.plane_register = {}
+			self.plane(self.origin, 'R1', self.zoom)
+		else:
+			self.zoom = 100
+			self.plane_register = {}
+			self.plane(self.origin, 'R1', self.zoom)
+
 
 	def clear(self,ID):
 		del self.register[ID]
@@ -108,7 +121,7 @@ class Sheet:
 	def stop_sheet(self):
 		self.move=False
 		#self.plane_register = {}
-		self.plane(self.origin, 'R1', 100)
+		self.plane(self.origin, 'R1', self.zoom)
 
 	def update(self,list_register):
 		if self.move:
@@ -119,7 +132,7 @@ class Sheet:
 			self.center = (int(self.ox + self.vax), int(self.oy + self.vay))
 
 			self.plane_register = {}
-			self.plane(self.origin, 'R1', 100)
+			self.plane(self.origin, 'R1', self.zoom)
 
 			for register in list_register:
 				for key in register:

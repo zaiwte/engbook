@@ -16,48 +16,51 @@ class Plane:
 		self.center=((self.ox+self.vax),(self.oy+self.vay))
 		self.plane_register:dict = {}
 
-	def plane(self,o,name,conf):
+	def plane(self,o,name,S):
 		""""
-
 			name = 'name'
 			conf = {'x':{'separation':npixel},
 				    'y':{'separation':npixel},
 				    'color':(r,g,b)
 				    'jumpL':[n,(r,g,b)]}
-
-			if not num%jnum:
-				color = conf['jumpL'][1]
-			else:
-				color = conf['color']
 		"""
 		num = 0
-		line = { 'X':{'start':{'x':o[0] - self.size[0],'y':o[1]},
-					  'end':{'x':o[0] + self.size[0],'y':o[1]},'M':(0,1)},
-		         'Y':{'start':{'x':o[0],'y':o[1] - self.size[1]},
-					  'end':{'x':o[0],'y':o[1] + self.size[1]},'M':(1,0)}}
+		line = {
+			    'X': {
+					  'start': {'x': 0, 'y': o[1]},
+					    'end': {'x':self.size[0], 'y': o[1]},
+					      'M': (0, 1),
+					  'limit': o[1]
+					  },
+				'Y': {
+					  'start': {'x': o[0], 'y': 0},
+					    'end': {'x': o[0], 'y': self.size[1]},
+					      'M': (1, 0),
+					  'limit': o[0]}
+				     }
 		interv = {'A': 1, 'B': -1}
-		limit = {'X':(o[1] ,o[1] + self.size[1]),
-				 'Y':(o[0] ,o[0] + self.size[0])}
 
 		for axis in line:
-			while True:
-				if (limit[axis][0] + (conf[axis]['separation']*num))>(limit[axis][1]):
-					break
+			while (line[axis]['limit'] - S * num) > 0:
 				for i in interv:
-
-					sn = conf[axis]['separation'] * num * interv[i]
+					sn = S * num * interv[i]
 					START = (line[axis]['start']['x'] + line[axis]['M'][0] * sn,
 							 line[axis]['start']['y'] + line[axis]['M'][1] * sn)
 
-					END  =  (line[axis]['end']['x'] + line[axis]['M'][0] * sn,
-							 line[axis]['end']['y'] + line[axis]['M'][1] * sn)
+					END = (line[axis]['end']['x'] + line[axis]['M'][0] * sn,
+						   line[axis]['end']['y'] + line[axis]['M'][1] * sn)
 
-					self.plane_register[f'{name}{axis}{i}{num}'] = {'LINE': {'START':START, 'END':END},
-													          'W': 1,
-													          'C': conf['color']}
+					if (line[axis]['limit'] - S * (num + 1)) < 0:
+						self.plane_register[f'{name}{axis}{i}T'] = {'LINE': {'START': START, 'END': END},
+																		'W': 2,
+																		'C': (200, 10, 10)}
+					else:
+						self.plane_register[f'{name}{axis}{i}{num}'] = {'LINE': {'START':START, 'END':END},
+																  'W': 1,
+																  'C': (10,10,10)}
 				num += 1
-			num = 0
 
+			num = 0
 
 	def ver_ejes_XY(self):
 		miFuente=pg.font.Font(None,23)
