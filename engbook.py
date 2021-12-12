@@ -48,6 +48,7 @@ class Engbook:
         #self.sheet.size = window['-GRAPH-'].get_size()
         self.sheet = sheet.Sheet(window['-GRAPH-'].get_size())
 
+        i=0
 
         while True:
             event, value = window.read(timeout=10)
@@ -79,10 +80,10 @@ class Engbook:
 
                     elif evento.button == 4:
                         self.sheet.zoom_plane(10)
-
+                        pass
                     elif evento.button == 5:
                         self.sheet.zoom_plane(-10)
-
+                        pass
                 elif evento.type == MOUSEBUTTONUP:
                     if evento.button == 1:
 
@@ -94,35 +95,47 @@ class Engbook:
 
 
 
+
             screen.fill((255, 255, 255))
 
             self.sheet.show(screen,[self.sheet.plane_register,
                                     self.line.lines_register])
 
-            pg.draw.circle(screen, (200, 0, 0), self.sheet.center, 10, 1)
-            pg.draw.circle(screen, (0, 200, 0), self.sheet.origin, 10)
+            #pg.draw.circle(screen, (200, 0, 0), self.sheet.center, 4, 1)
+            pg.draw.circle(screen, (200, 0, 0), self.sheet.origin, 4)
 
             mx, my = pg.mouse.get_pos()
             domx = mx - self.sheet.ox
-            domy = my - self.sheet.oy
+            domy = self.sheet.oy - my
             ndomx = -1*(mx - self.sheet.ox)
             ndomy = -1*(my - self.sheet.oy)
             #x = ndomx + self.sheet.ox + self.sheet.zoom
             x =self.sheet.ox + ndomx
             y = np.interp(x,[self.sheet.ox, self.sheet.ox + ndomx],[self.sheet.oy, self.sheet.oy + ndomy])
 
-            pg.draw.circle(screen, (0, 200, 0), (ndomx + self.sheet.ox,ndomy + self.sheet.oy), 10)
+            pg.draw.circle(screen, (0, 200, 0), (ndomx + self.sheet.ox,ndomy + self.sheet.oy), 4)
             #pg.draw.circle(screen, (0, 200, 200), (self.sheet.ox + x,self.sheet.oy + round(y)), 8)
+            #if i >= 360:
+            #    i=0
+            self.vector.add_vector(np.linalg.norm([domx,domy]),self.sheet.origin,0)
+            #i += 1
+            #V = pg.math.Vector2(domx-self.sheet.ox,domy-self.sheet.oy)np.pi
+            pg.draw.circle(screen, (0, 200, 100), (self.sheet.xz+self.sheet.ox,self.sheet.yz+self.sheet.oy), 4)
+            #pg.draw.circle(screen, (0, 200, 200), (int(V.x-self.sheet.ox),int(V.y-self.sheet.oy)), 5)
+            #print(self.vector.coor_vector()['END'])
+            pg.draw.circle(screen, (0, 0, 200), self.vector.coor_vector()['END'], 4)
 
-            self.vector.add_vector(np.linalg.norm([domx,domy]),self.sheet.origin,np.pi)
-            pg.draw.circle(screen, (0, 200, 200), self.vector.coor_vector()['END'], 8)
-            self.visualize.view(screen,{'pantalla':window['-GRAPH-'].get_size(),
+            self.visualize.view_axis(screen, self.sheet.axis_register)
+
+            self.visualize.view_inf(screen,{'pantalla':window['-GRAPH-'].get_size(),
                                         'mouse':pg.mouse.get_pos(),
-                                        'center':self.sheet.origin,
-                                        'zoom':self.sheet.zoom,
+                                        'origin':self.sheet.origin,
                                         'dom':(domx,domy),
-                                        'VEC':self.vector.coor_vector()['END'],
-                                        'distance':np.linalg.norm([domx,domy])},s=50)
+                                        'VEC': self.vector.coor_vector()['END'],
+                                        'distance':round(np.linalg.norm([domx,domy]),2),},s=50)
+
+
+            #self.sheet.axis(self.sheet.origin)
 
             #BUTTONS GUI
             if button_act == 'PENCIL':
